@@ -1,7 +1,6 @@
 package com.example.diego.tomarfoto;
 
 import android.content.Context;
-import android.content.pm.PackageManager;
 import android.hardware.Camera;
 import android.media.CamcorderProfile;
 import android.media.MediaRecorder;
@@ -14,7 +13,7 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.widget.Button;
-import android.widget.Toast;
+import android.widget.FrameLayout;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -25,49 +24,79 @@ import java.util.Date;
 
 
 public class MainActivity extends ActionBarActivity {
-   private Button btn_Captura,btn_Grabacion;
+   private Button btn_Captura,btn_Grabacion,btn_Focus;
+Context ctx;
     private Camera mCamera;
-   // private CameraPreview mPreview;
+  //  private CameraPreview mPreview;
     private boolean isRecording = false;
-
+   private  FrameLayout preview;
     private SurfaceView mPreview;
-    private MediaRecorder mMediaRecorder;
-
+   private MediaRecorder mMediaRecorder;
+    Camera.Parameters parameters;
     public static final int MEDIA_TYPE_IMAGE = 1;
     public static final int MEDIA_TYPE_VIDEO = 2;
-
+private int calidadFoto=90;
+    private int calidadVideo=90;
+    private int duracionVideo=90;
+    private int sizeMaxVideo=90;
     final static String TAG="CAMARA SAMSUNG";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // sE CREA EL OBJETO CAMARA
         mCamera = getCameraInstance();
+        // SE DECLARAN TODA LA INTERFAZ
+        XML();
+        // DECLARACION BOTONES
+        BOTONES();
 
-      //  FrameLayout preview = (FrameLayout) findViewById(R.id.camera_preview);
+        mPreview = new CameraPreview(getApplicationContext(), mCamera);
+        preview.addView(mPreview);
 
-       // mPreview = new CameraPreview(getApplicationContext(), mCamera);
-        mPreview=(SurfaceView) findViewById(R.id.surfaceView);
-      //  preview.addView(mPreview);
+    }
 
-        Toast.makeText(getApplicationContext(),"CAMARA INICIADA",Toast.LENGTH_SHORT);
+    public void PARAMETROS() {
 
-        btn_Captura= (Button) findViewById(R.id.btn_Captura);
-        btn_Captura.setOnClickListener(new View.OnClickListener() {
+   parameters =mCamera.getParameters();
+        if(parameters.getSupportedFocusModes().contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO))
+        {
+            parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO);
+
+        }
+        if(parameters.getSupportedFocusModes().contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE))
+        {
+            parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
+     }
+
+        parameters.setJpegQuality(calidadFoto);
+        parameters.setVideoStabilization(true);
+
+        mCamera.setParameters(parameters);
+  }
+
+    private void BOTONES() {
+
+        btn_Focus.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(getApplicationContext(),"CLICK FOTO!!!",Toast.LENGTH_SHORT);
-                mCamera.takePicture(null,null,mPicture);
-
+                PARAMETROS();
             }
         });
 
-        btn_Grabacion=(Button) findViewById(R.id.btn_Video);
+        btn_Captura.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                mCamera.takePicture(null,null,mPicture);
+      }
+        });
+
         btn_Grabacion.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(getApplicationContext(),"CLICK VIDEO!!!",Toast.LENGTH_SHORT);
-                // initialize video camera
+               // initialize video camera
                 if (isRecording) {
                     // stop recording and release camera
                     mMediaRecorder.stop();  // stop the recording
@@ -99,37 +128,29 @@ public class MainActivity extends ActionBarActivity {
 
     }
 
-
+    private void XML() {
+        preview = (FrameLayout) findViewById(R.id.camera_preview);
+        mPreview=(SurfaceView) findViewById(R.id.surfaceView);
+        btn_Captura= (Button) findViewById(R.id.btn_Captura);
+        btn_Grabacion=(Button) findViewById(R.id.btn_Video);
+        btn_Focus=(Button) findViewById(R.id.btn_Focus);
+   }
 
     @Override
     protected void onPause() {
         super.onPause();
-        mCamera.setPreviewCallback(null);// AGREGADO
-      // releaseMediaRecorder();       // if you are using MediaRecorder, release it first
-      //  releaseCamera();              // release the camera immediately on pause event
+   //  releaseMediaRecorder();       // if you are using MediaRecorder, release it first
+   //     releaseCamera();              // release the camera immediately on pause event
     }
 
     @Override
     protected void onDestroy() {
-        super.onDestroy();
-
-         releaseMediaRecorder();       // if you are using MediaRecorder, release it first
-          releaseCamera();
-
+        super.onPause();
+        releaseMediaRecorder();       // if you are using MediaRecorder, release it first
+        releaseCamera();              // release the camera immediately on pause event
     }
 
-    /** Check if this device has a camera */
-    private boolean checkCameraHardware(Context context) {
-        if (context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA)){
-           Toast.makeText(getApplicationContext(),"Camara ok",Toast.LENGTH_SHORT).show();
-            return true;
-        } else {
-            Toast.makeText(getApplicationContext(),"Dispositivo sin CAmara",Toast.LENGTH_SHORT).show();
-            return false;
-        }
-    }
-
-    /** A safe way to get an instance of the Camera object. */
+       /** A safe way to get an instance of the Camera object. */
     public static Camera getCameraInstance(){
         Camera c = null;
         try {
@@ -150,8 +171,7 @@ public class MainActivity extends ActionBarActivity {
         public CameraPreview(Context context, Camera camera) {
             super(context);
             mCamera = camera;
-
-            // Install a SurfaceHolder.Callback so we get notified when the
+    // Install a SurfaceHolder.Callback so we get notified when the
             // underlying surface is created and destroyed.
             mHolder = getHolder();
             mHolder.addCallback(this);
@@ -191,6 +211,8 @@ public class MainActivity extends ActionBarActivity {
 
             // set preview size and make any resize, rotate or
             // reformatting changes here
+            mCamera.setDisplayOrientation(90);
+            PARAMETROS();
 
             // start preview with new settings
             try {
@@ -202,6 +224,7 @@ public class MainActivity extends ActionBarActivity {
             }
         }
     }
+
     private Camera.PictureCallback mPicture = new Camera.PictureCallback() {
 
         @Override
@@ -240,24 +263,18 @@ public class MainActivity extends ActionBarActivity {
 
 
       mMediaRecorder = new MediaRecorder();
-        Log.d(TAG, "0");
         // Step 1: Unlock and set camera to MediaRecorder
         mCamera.unlock();
         mMediaRecorder.setCamera(mCamera);
-        Log.d(TAG, "1");
-        // Step 2: Set sources
+       // Step 2: Set sources
         mMediaRecorder.setAudioSource(MediaRecorder.AudioSource.CAMCORDER);
         mMediaRecorder.setVideoSource(MediaRecorder.VideoSource.CAMERA);
-        Log.d(TAG, "2");
-        // Step 3: Set a CamcorderProfile (requires API Level 8 or higher)
-        mMediaRecorder.setProfile(CamcorderProfile.get(CamcorderProfile.QUALITY_HIGH));
-        Log.d(TAG, "3");
+       // Step 3: Set a CamcorderProfile (requires API Level 8 or higher)
+        mMediaRecorder.setProfile(CamcorderProfile.get(CamcorderProfile.QUALITY_480P));
         // Step 4: Set output file
         mMediaRecorder.setOutputFile(getOutputMediaFile(MEDIA_TYPE_VIDEO).toString());
-        Log.d(TAG, "4");
-        // Step 5: Set the preview output
+       // Step 5: Set the preview output
         mMediaRecorder.setPreviewDisplay(mPreview.getHolder().getSurface());
-        Log.d(TAG, "5");
         // Step 6: Prepare configured MediaRecorder
         try {
             mMediaRecorder.prepare();
@@ -322,4 +339,4 @@ public class MainActivity extends ActionBarActivity {
 
         return mediaFile;
     }
-    }
+}

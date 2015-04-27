@@ -4,33 +4,41 @@
     android:layout_height="fill_parent"
     android:orientation="vertical"
     android:weightSum="1">
+
+
     <FrameLayout
         android:id="@+id/camera_preview"
-        android:layout_width="274dp"
-        android:layout_height="196dp"
-        android:layout_weight="0.81">
+        android:layout_width="263dp"
+        android:layout_height="197dp"
+        android:layout_weight="0.24">
 
         <SurfaceView
-            android:layout_width="133dp"
-            android:layout_height="117dp"
+            android:layout_width="match_parent"
+            android:layout_height="174dp"
             android:id="@+id/surfaceView"
-            android:layout_gravity="center" />
+            android:layout_gravity="left|top" />
+
+        <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="VIDEO"
+                android:id="@+id/btn_Video"
+            android:layout_gravity="right|bottom" />
+
+        <Button
+                android:id="@+id/btn_Captura"
+                android:text="FOTO"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="left|bottom" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="FOCO"
+            android:id="@+id/btn_Focus"
+            android:layout_gravity="center_horizontal|bottom" />
     </FrameLayout>
-
-
-
-        <Button
-            android:id="@+id/btn_Captura"
-            android:text="FOTO"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical" />
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="VIDEO"
-            android:id="@+id/btn_Video" />
 
 
 </LinearLayout>

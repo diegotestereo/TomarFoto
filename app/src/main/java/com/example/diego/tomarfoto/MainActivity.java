@@ -25,12 +25,11 @@ import java.util.Date;
 
 public class MainActivity extends ActionBarActivity {
    private Button btn_Captura,btn_Grabacion,btn_Focus;
-Context ctx;
-    private Camera mCamera;
-  //  private CameraPreview mPreview;
+
     private boolean isRecording = false;
    private  FrameLayout preview;
     private SurfaceView mPreview;
+    private Camera mCamera;
    private MediaRecorder mMediaRecorder;
     Camera.Parameters parameters;
     public static final int MEDIA_TYPE_IMAGE = 1;
@@ -57,24 +56,6 @@ private int calidadFoto=90;
 
     }
 
-    public void PARAMETROS() {
-
-   parameters =mCamera.getParameters();
-        if(parameters.getSupportedFocusModes().contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO))
-        {
-            parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO);
-
-        }
-        if(parameters.getSupportedFocusModes().contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE))
-        {
-            parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
-     }
-
-        parameters.setJpegQuality(calidadFoto);
-        parameters.setVideoStabilization(true);
-
-        mCamera.setParameters(parameters);
-  }
 
     private void BOTONES() {
 
@@ -135,6 +116,25 @@ private int calidadFoto=90;
         btn_Grabacion=(Button) findViewById(R.id.btn_Video);
         btn_Focus=(Button) findViewById(R.id.btn_Focus);
    }
+
+    public void PARAMETROS() {
+
+        parameters =mCamera.getParameters();
+        if(parameters.getSupportedFocusModes().contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO))
+        {
+            parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO);
+
+        }
+        if(parameters.getSupportedFocusModes().contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE))
+        {
+            parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
+        }
+
+        parameters.setJpegQuality(calidadFoto);
+        parameters.setVideoStabilization(true);
+
+        mCamera.setParameters(parameters);
+    }
 
     @Override
     protected void onPause() {
@@ -255,9 +255,6 @@ private int calidadFoto=90;
 
         }
     }
-////////////////////////// termina CAMARA FOTO///////////////////////////////////////////////77
-
-    /////////////////// VIDEO GRABACION //////////////////////////
 
     private boolean prepareVideoRecorder(){
 
@@ -339,4 +336,6 @@ private int calidadFoto=90;
 
         return mediaFile;
     }
+
+
 }
